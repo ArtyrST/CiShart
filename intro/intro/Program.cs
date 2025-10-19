@@ -57,7 +57,8 @@
                     Console.WriteLine(simv);
                 }
             }
-            int test;
+            int test = 155;
+            string test1 = "test1";
 
         }
     }
