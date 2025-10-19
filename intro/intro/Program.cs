@@ -57,7 +57,7 @@
                     Console.WriteLine(simv);
                 }
             }
-
+            int test;
 
         }
     }
