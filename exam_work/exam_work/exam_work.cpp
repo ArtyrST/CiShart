@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <Windows.h>
 using namespace std;
 
 struct Details {
@@ -19,6 +20,10 @@ struct Product {
     string name;
     double price;
     Details info;
+    void Print() {
+        cout << name << " " << price << " "
+        << info.type << " " << info.model << '\n';
+    }
 };
 
 class Store {
@@ -26,7 +31,10 @@ class Store {
     string filename;
 public:
     Store(string file) : filename(file) { load(); }
-    ~Store() { for (auto p : products) delete p; }
+    ~Store() {
+        for (size_t i = 0; i < products.size(); i++)
+            delete products[i];
+    }
 
     void load() {
         ifstream f(filename);
@@ -45,8 +53,11 @@ public:
 
     void save() {
         ofstream f(filename);
-        for (auto p : products)
-            f << p->name << ' ' << p->price << ' ' << p->info.type << ' ' << p->info.firm << ' ' << p->info.model << ' ' << p->info.extra.warranty << '\n';
+        for (size_t i = 0; i < products.size(); i++) {
+            Product* p = products[i];
+            f << p->name << ' ' << p->price << ' ' << p->info.type << ' '
+                << p->info.firm << ' ' << p->info.model << ' ' << p->info.extra.warranty << '\n';
+        }
         f.close();
     }
 
@@ -60,80 +71,118 @@ public:
         cout << "Модель: "; cin >> p->info.model;
         cout << "Гарантія(міс): "; cin >> p->info.extra.warranty;
         products.push_back(p);
-        save();
+        //save(); поправити
     }
 
     void showAll() {
-        for (auto p : products)
-            cout << p->name << " " << p->price << "грн " << p->info.type << " " << p->info.firm << " " << p->info.model << " гарантія:" << p->info.extra.warranty << "міс\n";
+        for (size_t i = 0; i < products.size(); i++) {
+            Product* p = products[i];
+            cout << p->name << " " << p->price << "грн "
+                << p->info.type << " " << p->info.firm << " "
+                << p->info.model << " гарантія:" << p->info.extra.warranty << "міс\n";
+            //зробити гарне виведення
+        }
     }
 
     void del(const string& name) {
-        for (auto it = products.begin(); it != products.end();)
-            if ((*it)->name == name) { delete* it; it = products.erase(it); }
-            else ++it;
+        for (size_t i = 0; i < products.size();) {
+            if (products[i]->name == name) {
+                delete products[i];
+                products.erase(products.begin() + i);
+            }
+            else i++;
+            //fix
+        }
         save();
     }
 
     void edit(const string& name) {
-        for (auto p : products)
+        for (size_t i = 0; i < products.size(); i++) {
+            Product* p = products[i];
             if (p->name == name) {
                 cout << "Нова ціна: "; cin >> p->price;
                 if (p->price <= 0) p->price = 1;
             }
+        }
         save();
     }
 
     void sortByName() {
-        sort(products.begin(), products.end(), [](Product* a, Product* b) { return a->name < b->name; });
+        sort(products.begin(), products.end(),
+            [](Product* a, Product* b) { return a->name < b->name; });
     }
 
     void sortByPrice() {
-        sort(products.begin(), products.end(), [](Product* a, Product* b) { return a->price < b->price; });
+        sort(products.begin(), products.end(),
+            [](Product* a, Product* b) { return a->price < b->price; });
     }
 
     void searchFirm(const string& firm) {
-        for (auto p : products)
-            if (p->info.firm == firm)
-                cout << p->name << " " << p->price << " " << p->info.type << " " << p->info.model << '\n';
+        for (size_t i = 0; i < products.size(); i++) {
+            if (products[i]->info.firm == firm){
+                products[i]->Print();
+            }
+        }
+        //fix
     }
 
     void selectTypePrice(const string& type, double x, double y) {
-        for (auto p : products)
+        for (size_t i = 0; i < products.size(); i++) {
+            Product* p = products[i];
             if (p->info.type == type && p->price >= x && p->price <= y)
                 cout << p->name << " " << p->price << '\n';
+        }
     }
 
     void averageType(const string& type) {
-        double sum = 0; int count = 0;
-        for (auto p : products)
-            if (p->info.type == type) { sum += p->price; count++; }
-        if (count) cout << "Середня ціна: " << sum / count << '\n';
+        double sum = 0;
+        int count = 0;
+        for (size_t i = 0; i < products.size(); i++) {
+            Product* p = products[i];
+            if (p->info.type == type) {
+                sum += p->price;
+                count++;
+            }
+        }
+        if (count)
+            cout << "Середня ціна: " << sum / count << '\n';
     }
 
     void changePriceType(const string& type, double percent) {
-        for (auto p : products)
+        for (size_t i = 0; i < products.size(); i++) {
+            Product* p = products[i];
             if (p->info.type == type)
                 p->price += p->price * percent / 100.0;
+        }
         save();
     }
 
     void reportType(const string& type) {
         vector<Product*> filtered;
-        for (auto p : products)
+        for (size_t i = 0; i < products.size(); i++) {
+            Product* p = products[i];
             if (p->info.type == type)
                 filtered.push_back(p);
-        sort(filtered.begin(), filtered.end(), [](Product* a, Product* b) { return a->name < b->name; });
-        for (auto p : filtered)
+        }
+        sort(filtered.begin(), filtered.end(),
+            [](Product* a, Product* b) { return a->name < b->name; });
+        for (size_t i = 0; i < filtered.size(); i++) {
+            Product* p = filtered[i];
             cout << p->info.model << " " << p->price << " " << p->name << '\n';
+        }
     }
 };
 
 int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
     Store s("products.txt");
     int c;
     do {
-        cout << "\n1-Додати 2-Показати 3-Видалити 4-Редагувати 5-Сортувати(назва) 6-Сортувати(ціна) 7-Пошук фірми 8-Вибірка 9-Середня 10-Зміна ціни 11-Звіт 0-Вихід\n";
+        cout << "\n1-Додати \n2-Показати \n3-Видалити \n4-Редагувати "
+            "\n5-Сортувати(назва) \n6-Сортувати(ціна) "
+            "\n7-Пошук фірми \n8-Вибірка \n9-Середня "
+            "\n10-Зміна ціни \n11-Звіт \n0-Вихід\n";
         cin >> c;
         if (c == 1) s.add();
         else if (c == 2) s.showAll();
