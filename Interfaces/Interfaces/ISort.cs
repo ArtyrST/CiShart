@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace Interfaces
 {
-    internal interface IMath
+    internal interface ISort
     {
-        int Max();
-        int Min();
-        float Avg();
-        bool Search(int valueToSearch);
+        void SortAsc();
+        void SortDesc();
+        void SortByParam(bool isAsc);
+
+
     }
 }

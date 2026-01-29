@@ -1,6 +1,6 @@
 ﻿namespace Interfaces
 {
-    class Array : IOutput, IMath   {
+    class Array : IOutput, IMath , ISort  {
         private List<int> array;
         public Array(int size)
         {
@@ -60,7 +60,8 @@
         }
         public bool Search(int valueToSearch)
         {
-            bool check = false;
+           
+             
             int left = 0;
             int right = array.Count - 1;
 
@@ -79,7 +80,49 @@
 
             return false;
         }
+
+        public void SortAsc()
+        {
+            for (int i = 0; i < array.Count; i++) {
+                for (int j = 0; j < array.Count - i - 1; j++)
+                {
+                    if (array[j] > array[j + 1])
+                    {
+                        int temp = array[j];
+                        array[j] = array[j + 1];
+                        array[j + 1] = temp;
+                    }
+                }
+            }
+        }
             
+        public void SortDesc()
+        {
+            for (int i = 0; i < array.Count; i++)
+            {
+                for (int j = 0; j < array.Count - i - 1; j++)
+                {
+                    if (array[j] < array[j + 1])
+                    {
+                        int temp = array[j];
+                        array[j] = array[j + 1];
+                        array[j + 1] = temp;
+                    }
+                }
+            }
+        }
+        public void SortByParam(bool isAsc) 
+        {
+            if (isAsc)
+            {
+                SortAsc();
+            }
+            else if (!isAsc)
+            {
+                SortDesc();
+            }
+        }
+
     
     }
     internal class Program
@@ -91,6 +134,23 @@
             p.Show();
             p.Show("test");
             //2 test
+            int min = p.Min();
+            int max = p.Max();
+            float avg = p.Avg();
+            bool search = p.Search(4);
+            Console.WriteLine(min);
+            Console.WriteLine(max);
+            Console.WriteLine(avg);
+            Console.WriteLine(search);
+            //3 test
+            p.SortAsc();
+            p.Show();
+            p.SortDesc();
+            p.Show();
+            p.SortByParam(true);
+            p.Show();
+
+
         }
     }
 }
