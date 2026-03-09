@@ -9,34 +9,44 @@ namespace Client
     {
         static void Main(string[] args)
         {
-            const string ip = "127.0.0.1";
-            const int port = 8080;
+            const string ip = "192.168.101.103";
+            const int port = 50000;
+            //var endPointTCP = new IPEndPoint(IPAddress.Parse(ip), port);
+            //var socketTCP = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var endPointTCP = new IPEndPoint(IPAddress.Parse(ip), port);
-            var socketTCP = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            
-            Console.WriteLine(@"Введіть варіант(1: повернути дату, 2: повернути час, 0: закрити з'єднання): ");
-            string answer = Console.ReadLine();
 
-            var data = Encoding.UTF8.GetBytes(answer);
-            socketTCP.Connect(endPointTCP);
-            socketTCP.Send(data);
+            //var data = Encoding.UTF8.GetBytes(answer);
+            //socketTCP.Send(data);
 
             var buffer = new byte[256];
             var size = 0;
             var answerFromServer = new StringBuilder();
-
-            do
+            while (true)
             {
-                size = socketTCP.Receive(buffer);
-                answerFromServer.Append(Encoding.UTF8.GetString(buffer, 0, size));
+                var endPointTCP = new IPEndPoint(IPAddress.Parse(ip), port);
+                var socketTCP = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                Console.WriteLine(@"Введіть варіант(1: повернути дату, 2: повернути час, 0: закрити з'єднання): ");
+                string answer = Console.ReadLine();
+                socketTCP.Connect(endPointTCP);
+                var data = Encoding.UTF8.GetBytes(answer);
+                socketTCP.Send(data);
 
-            } while (socketTCP.Available > 0);
+                do
+                {
+                    size = socketTCP.Receive(buffer);
+                    answerFromServer.Append(Encoding.UTF8.GetString(buffer, 0, size));
 
-            Console.WriteLine(answerFromServer);
+                } while (socketTCP.Available > 0);
 
-            socketTCP.Shutdown(SocketShutdown.Both);
-            socketTCP.Close();
+                Console.WriteLine(answerFromServer);
+                if (answer == "0")
+                {
+                    break;
+                }
+                answerFromServer = new StringBuilder();
+                socketTCP.Shutdown(SocketShutdown.Both);
+                socketTCP.Close();
+            }
 
         }
     }

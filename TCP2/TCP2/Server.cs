@@ -16,15 +16,20 @@ namespace TCP2
             Console.WriteLine("Returning time...");
             listener.Send(Encoding.UTF8.GetBytes(DateTime.Now.ToString("HH:mm:ss")));
         }
+        static void ReturnError(Socket listener)
+        {
+            Console.WriteLine("Invalid number from client...");
+            listener.Send(Encoding.UTF8.GetBytes("Invalid number..."));
+        }
         static void Main(string[] args)
         {
-            const string ip = "127.0.0.1";
-            const int port = 8080;
+            //const string ip = "192.168.1.2";
+            const int port = 50000;
 
-            var endPointTCP = new IPEndPoint(IPAddress.Parse(ip), port);
+            var endPointTCP = new IPEndPoint(IPAddress.Parse("192.168.101.103"), port);
             var socketTCP = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socketTCP.Bind(endPointTCP);
-            socketTCP.Listen(5);
+            socketTCP.Listen(2);
             while (true)
             {
                 var listener = socketTCP.Accept();
@@ -53,8 +58,13 @@ namespace TCP2
                         listener.Send(Encoding.UTF8.GetBytes("Done!"));
                         listener.Shutdown(SocketShutdown.Both);
                         listener.Close();
-                        break;
+                        
                     }
+                }
+                else
+                {
+                    ReturnError(listener);
+                    
                 }
             }
         }
